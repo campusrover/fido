@@ -15,6 +15,8 @@ Fido is developed as an independent study project at Brandeis University for rob
 
 ## Installation
 
+*Fido is not yet on PyPi, but will be soon!*
+
 Using pip:
 
 ```bash
