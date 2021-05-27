@@ -124,6 +124,5 @@ class Camera(Sensor):
         base64_bytes = msg["data"].encode("ascii")
         image_bytes = base64.b64decode(base64_bytes)
         image = Image.open(io.BytesIO(image_bytes))
-        image_np = np.array(image)
 
-        setattr(self.robot, "image", image_np)
+        setattr(self.robot, "image", image)
