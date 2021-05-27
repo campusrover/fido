@@ -5,7 +5,8 @@ import numpy as np
 from roslibpy import Topic
 
 from ..dtypes import Twist
-from .component import Lidar, Odomer
+from ..errors import RobotError
+from .component import Camera, Lidar, Odomer
 from .robot import Robot
 
 if typing.TYPE_CHECKING:
@@ -16,7 +17,7 @@ DEFAULT_LOOP_FREQUENCY = 10
 
 
 class Turtlebot3(Robot):
-    """Represents a Turtlebot3 Burger robot.
+    """Represents a Turtlebot3 robot.
 
     For details about this robot, see:
     https://emanual.robotis.com/docs/en/platform/turtlebot3/overview/.
@@ -25,11 +26,17 @@ class Turtlebot3(Robot):
     _max_speed: float
     _min_speed: float
 
-    def __init__(self, name: str, physical: bool = False):
-        super(Turtlebot3, self).__init__(name, "turtlebot3_burger", physical)
+    def __init__(self, name: str, physical: bool = False, model_type: str = "burger"):
+        if model_type not in ["burger", "waffle"]:
+            raise RobotError(f"invalid model_type: {model_type}")
+
+        super(Turtlebot3, self).__init__(name, f"turtlebot3_{model_type}", physical)
 
         self.add_sensor(Lidar)
         self.add_sensor(Odomer)
+
+        if model_type == "waffle":
+            self.add_sensor(Camera)
 
     def move(self, distance: float = 0, duration: float = 0, speed: float = 0) -> None:
         """Move the robot at a certain distance at a certain speed or for a
