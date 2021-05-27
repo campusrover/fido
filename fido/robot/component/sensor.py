@@ -4,7 +4,6 @@ import typing
 from abc import abstractmethod
 from typing import Any, Callable, Mapping
 
-import numpy as np
 from PIL import Image
 from roslibpy import Topic
 
