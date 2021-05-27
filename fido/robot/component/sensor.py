@@ -1,7 +1,11 @@
+import base64
+import io
 import typing
 from abc import abstractmethod
 from typing import Any, Callable, Mapping
 
+import numpy as np
+from PIL import Image
 from roslibpy import Topic
 
 from ...errors import RobotError
@@ -94,3 +98,32 @@ class Lidar(Sensor):
         ranges = msg["ranges"]
 
         setattr(self.robot, "ranges", ranges)
+
+
+class Camera(Sensor):
+    """Represents a Camera sensor."""
+
+    def handle_updates(self, ros: "Ros") -> Callable[[], None]:
+        """Handle incoming update for `/camera/rgb/image_raw/compressed` topic and
+        update robot's image accordingly.
+
+        Args:
+            ros (Ros): ROS client.
+
+        Returns:
+            A callback for unsubscribing the topic.
+        """
+        topic = Topic(
+            ros, "/camera/rgb/image_raw/compressed", "sensor_msgs/CompressedImage"
+        )
+        topic.subscribe(self.__image_handler)
+
+        return lambda: topic.unsubscribe()
+
+    def __image_handler(self, msg: Mapping[Any, Any]) -> None:
+        base64_bytes = msg["data"].encode("ascii")
+        image_bytes = base64.b64decode(base64_bytes)
+        image = Image.open(io.BytesIO(image_bytes))
+        image_np = np.array(image)
+
+        setattr(self.robot, "image", image_np)
